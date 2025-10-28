@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>项目需求排期工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-primary {
+            background: white;
+            color: #667eea;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-info {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .main-content {
+            padding: 40px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            color: #6b7280;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+            font-weight: 600;
+        }
+
+        .tab:hover {
+            color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #374151;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: #f9fafb;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 2px solid #e5e7eb;
+            transition: all 0.3s;
+        }
+
+        .card:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .table th,
+        .table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .table th {
+            background: #f3f4f6;
+            color: #374151;
+            font-weight: 600;
+        }
+
+        .table tr:hover {
+            background: #f9fafb;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .badge-frontend {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge-backend {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .badge-test {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s;
+        }
+
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .timeline-item {
+            display: flex;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        .timeline-label {
+            width: 150px;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .timeline-bar {
+            flex: 1;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            color: white;
+            font-size: 14px;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+            margin-left: 20px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #6b7280;
+        }
+
+        .close-btn:hover {
+            color: #1f2937;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .workload-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .workload-name {
+            font-weight: 500;
+            color: #1f2937;
+        }
+
+        .workload-hours {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6b7280;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .empty-state-text {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .gantt-chart {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        .gantt-header {
+            display: flex;
+            background: #f3f4f6;
+            padding: 10px;
+            font-weight: 600;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .gantt-row {
+            display: flex;
+            padding: 15px 10px;
+            border-bottom: 1px solid #e5e7eb;
+            align-items: center;
+        }
+
+        .gantt-label {
+            width: 200px;
+            flex-shrink: 0;
+            font-weight: 500;
+        }
+
+        .gantt-timeline {
+            flex: 1;
+            position: relative;
+            height: 30px;
+        }
+
+        .gantt-bar {
+            position: absolute;
+            height: 100%;
+            border-radius: 6px;
+            padding: 0 10px;
+            display: flex;
+            align-items: center;
+            color: white;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .gantt-bar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .gantt-bar-frontend {
+            background: #3b82f6;
+        }
+
+        .gantt-bar-backend {
+            background: #10b981;
+        }
+
+        .gantt-bar-test {
+            background: #f59e0b;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .mt-20 {
+            margin-top: 20px;
+        }
+
+        .text-muted {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 20px;
+            }
+
+            .header {
+                padding: 20px;
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 项目需求排期工具</h1>
+            <div class="header-actions">
+                <button class="btn btn-secondary" onclick="exportData()">📥 导出数据</button>
+                <button class="btn btn-secondary" onclick="importData()">📤 导入数据</button>
+                <button class="btn btn-primary" onclick="saveData()">💾 保存</button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <!-- 统计面板 -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalRequirements">0</div>
+                    <div class="stat-label">需求总数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalHours">0</div>
+                    <div class="stat-label">总工时（小时）</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalDevelopers">0</div>
+                    <div class="stat-label">开发人员</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="avgHours">0</div>
+                    <div class="stat-label">平均工时</div>
+                </div>
+            </div>
+
+            <!-- 标签页 -->
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('requirements')">需求管理</button>
+                <button class="tab" onclick="switchTab('developers')">人员管理</button>
+                <button class="tab" onclick="switchTab('schedule')">排期视图</button>
+                <button class="tab" onclick="switchTab('workload')">工作量统计</button>
+            </div>
+
+            <!-- 需求管理 -->
+            <div id="requirements" class="tab-content active">
+                <button class="btn btn-success" onclick="openAddRequirementModal()">➕ 添加需求</button>
+                <div id="requirementsList" class="mt-20"></div>
+            </div>
+
+            <!-- 人员管理 -->
+            <div id="developers" class="tab-content">
+                <button class="btn btn-success" onclick="openAddDeveloperModal()">➕ 添加人员</button>
+                <div id="developersList" class="mt-20"></div>
+            </div>
+
+            <!-- 排期视图 -->
+            <div id="schedule" class="tab-content">
+                <div class="card">
+                    <h3 style="margin-bottom: 20px;">甘特图</h3>
+                    <div id="ganttChart"></div>
+                </div>
+            </div>
+
+            <!-- 工作量统计 -->
+            <div id="workload" class="tab-content">
+                <div class="card">
+                    <h3 style="margin-bottom: 20px;">人员工作量分布</h3>
+                    <div id="workloadChart"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加需求模态框 -->
+    <div id="requirementModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="requirementModalTitle">添加需求</h2>
+                <button class="close-btn" onclick="closeRequirementModal()">×</button>
+            </div>
+            <form id="requirementForm" onsubmit="saveRequirement(event)">
+                <input type="hidden" id="requirementId">
+                
+                <div class="form-group">
+                    <label>需求名称 *</label>
+                    <input type="text" id="requirementName" required>
+                </div>
+
+                <div class="form-group">
+                    <label>需求描述</label>
+                    <textarea id="requirementDesc" rows="3"></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>前端工时（小时） *</label>
+                        <input type="number" id="frontendHours" min="0" step="0.5" value="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>后端工时（小时） *</label>
+                        <input type="number" id="backendHours" min="0" step="0.5" value="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>测试工时（小时） *</label>
+                        <input type="number" id="testHours" min="0" step="0.5" value="0" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>前端负责人</label>
+                        <select id="frontendDev">
+                            <option value="">未分配</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>后端负责人</label>
+                        <select id="backendDev">
+                            <option value="">未分配</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>测试负责人</label>
+                        <select id="testDev">
+                            <option value="">未分配</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>开始日期</label>
+                        <input type="date" id="startDate">
+                    </div>
+                    <div class="form-group">
+                        <label>优先级</label>
+                        <select id="priority">
+                            <option value="high">高</option>
+                            <option value="medium" selected>中</option>
+                            <option value="low">低</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="submit" class="btn btn-success" style="flex: 1;">保存</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeRequirementModal()" style="flex: 1;">取消</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 添加人员模态框 -->
+    <div id="developerModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">添加人员</h2>
+                <button class="close-btn" onclick="closeDeveloperModal()">×</button>
+            </div>
+            <form id="developerForm" onsubmit="saveDeveloper(event)">
+                <input type="hidden" id="developerId">
+                
+                <div class="form-group">
+                    <label>姓名 *</label>
+                    <input type="text" id="developerName" required>
+                </div>
+
+                <div class="form-group">
+                    <label>角色 *</label>
+                    <select id="developerRole" required>
+                        <option value="">请选择</option>
+                        <option value="frontend">前端工程师</option>
+                        <option value="backend">后端工程师</option>
+                        <option value="test">测试工程师</option>
+                        <option value="fullstack">全栈工程师</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>日工作时长（小时/天）</label>
+                    <input type="number" id="dailyHours" min="1" max="12" value="8" step="0.5">
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="submit" class="btn btn-success" style="flex: 1;">保存</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeDeveloperModal()" style="flex: 1;">取消</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // 数据存储
+        let requirements = [];
+        let developers = [];
+
+        // 页面加载时初始化
+        window.onload = function() {
+            loadData();
+            updateStats();
+            renderRequirements();
+            renderDevelopers();
+            renderGanttChart();
+            renderWorkloadChart();
+        };
+
+        // 标签页切换
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+
+            if (tabName === 'schedule') {
+                renderGanttChart();
+            } else if (tabName === 'workload') {
+                renderWorkloadChart();
+            }
+        }
+
+        // 需求管理
+        function openAddRequirementModal() {
+            document.getElementById('requirementModalTitle').textContent = '添加需求';
+            document.getElementById('requirementForm').reset();
+            document.getElementById('requirementId').value = '';
+            updateDeveloperSelects();
+            document.getElementById('requirementModal').classList.add('active');
+        }
+
+        function closeRequirementModal() {
+            document.getElementById('requirementModal').classList.remove('active');
+        }
+
+        function saveRequirement(event) {
+            event.preventDefault();
+            
+            const id = document.getElementById('requirementId').value || Date.now().toString();
+            const requirement = {
+                id: id,
+                name: document.getElementById('requirementName').value,
+                description: document.getElementById('requirementDesc').value,
+                frontendHours: parseFloat(document.getElementById('frontendHours').value),
+                backendHours: parseFloat(document.getElementById('backendHours').value),
+                testHours: parseFloat(document.getElementById('testHours').value),
+                frontendDev: document.getElementById('frontendDev').value,
+                backendDev: document.getElementById('backendDev').value,
+                testDev: document.getElementById('testDev').value,
+                startDate: document.getElementById('startDate').value,
+                priority: document.getElementById('priority').value,
+                createdAt: new Date().toISOString()
+            };
+
+            const index = requirements.findIndex(r => r.id === id);
+            if (index >= 0) {
+                requirements[index] = requirement;
+            } else {
+                requirements.push(requirement);
+            }
+
+            saveData();
+            renderRequirements();
+            updateStats();
+            closeRequirementModal();
+        }
+
+        function editRequirement(id) {
+            const requirement = requirements.find(r => r.id === id);
+            if (!requirement) return;
+
+            document.getElementById('requirementModalTitle').textContent = '编辑需求';
+            document.getElementById('requirementId').value = requirement.id;
+            document.getElementById('requirementName').value = requirement.name;
+            document.getElementById('requirementDesc').value = requirement.description;
+            document.getElementById('frontendHours').value = requirement.frontendHours;
+            document.getElementById('backendHours').value = requirement.backendHours;
+            document.getElementById('testHours').value = requirement.testHours;
+            document.getElementById('frontendDev').value = requirement.frontendDev;
+            document.getElementById('backendDev').value = requirement.backendDev;
+            document.getElementById('testDev').value = requirement.testDev;
+            document.getElementById('startDate').value = requirement.startDate;
+            document.getElementById('priority').value = requirement.priority;
+            
+            updateDeveloperSelects();
+            document.getElementById('requirementModal').classList.add('active');
+        }
+
+        function deleteRequirement(id) {
+            if (!confirm('确定要删除这个需求吗？')) return;
+            
+            requirements = requirements.filter(r => r.id !== id);
+            saveData();
+            renderRequirements();
+            updateStats();
+        }
+
+        function renderRequirements() {
+            const container = document.getElementById('requirementsList');
+            
+            if (requirements.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📋</div>
+                        <div class="empty-state-text">还没有添加任何需求</div>
+                        <div class="text-muted">点击上方"添加需求"按钮开始</div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = requirements.map(req => {
+                const totalHours = req.frontendHours + req.backendHours + req.testHours;
+                const priorityText = {high: '高', medium: '中', low: '低'}[req.priority];
+                
+                return `
+                    <div class="card">
+                        <div class="card-header">
+                            <div>
+                                <div class="card-title">${req.name}</div>
+                                <div class="text-muted">${req.description || '暂无描述'}</div>
+                            </div>
+                            <div class="card-actions">
+                                <button class="btn btn-info btn-sm" onclick="editRequirement('${req.id}')">编辑</button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteRequirement('${req.id}')">删除</button>
+                            </div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
+                            <div>
+                                <div class="badge badge-frontend">前端: ${req.frontendHours}h</div>
+                                <div class="text-muted" style="font-size: 12px; margin-top: 5px;">
+                                    ${getDeveloperName(req.frontendDev) || '未分配'}
+                                </div>
+                            </div>
+                            <div>
+                                <div class="badge badge-backend">后端: ${req.backendHours}h</div>
+                                <div class="text-muted" style="font-size: 12px; margin-top: 5px;">
+                                    ${getDeveloperName(req.backendDev) || '未分配'}
+                                </div>
+                            </div>
+                            <div>
+                                <div class="badge badge-test">测试: ${req.testHours}h</div>
+                                <div class="text-muted" style="font-size: 12px; margin-top: 5px;">
+                                    ${getDeveloperName(req.testDev) || '未分配'}
+                                </div>
+                            </div>
+                            <div>
+                                <div style="font-weight: 600; color: #667eea;">总计: ${totalHours}h</div>
+                                <div class="text-muted" style="font-size: 12px; margin-top: 5px;">
+                                    优先级: ${priorityText}
+                                </div>
+                            </div>
+                        </div>
+                        ${req.startDate ? `<div class="text-muted" style="margin-top: 10px;">开始日期: ${req.startDate}</div>` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 人员管理
+        function openAddDeveloperModal() {
+            document.getElementById('developerForm').reset();
+            document.getElementById('developerId').value = '';
+            document.getElementById('developerModal').classList.add('active');
+        }
+
+        function closeDeveloperModal() {
+            document.getElementById('developerModal').classList.remove('active');
+        }
+
+        function saveDeveloper(event) {
+            event.preventDefault();
+            
+            const id = document.getElementById('developerId').value || Date.now().toString();
+            const developer = {
+                id: id,
+                name: document.getElementById('developerName').value,
+                role: document.getElementById('developerRole').value,
+                dailyHours: parseFloat(document.getElementById('dailyHours').value)
+            };
+
+            const index = developers.findIndex(d => d.id === id);
+            if (index >= 0) {
+                developers[index] = developer;
+            } else {
+                developers.push(developer);
+            }
+
+            saveData();
+            renderDevelopers();
+            updateStats();
+            closeDeveloperModal();
+        }
+
+        function deleteDeveloper(id) {
+            if (!confirm('确定要删除这个人员吗？')) return;
+            
+            developers = developers.filter(d => d.id !== id);
+            saveData();
+            renderDevelopers();
+            updateStats();
+        }
+
+        function renderDevelopers() {
+            const container = document.getElementById('developersList');
+            
+            if (developers.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">👥</div>
+                        <div class="empty-state-text">还没有添加任何人员</div>
+                        <div class="text-muted">点击上方"添加人员"按钮开始</div>
+                    </div>
+                `;
+                return;
+            }
+
+            const roleText = {
+                frontend: '前端工程师',
+                backend: '后端工程师',
+                test: '测试工程师',
+                fullstack: '全栈工程师'
+            };
+
+            container.innerHTML = `
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>姓名</th>
+                            <th>角色</th>
+                            <th>日工作时长</th>
+                            <th>分配的任务</th>
+                            <th>总工时</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${developers.map(dev => {
+                            const workload = calculateDeveloperWorkload(dev.id);
+                            return `
+                                <tr>
+                                    <td><strong>${dev.name}</strong></td>
+                                    <td>${roleText[dev.role]}</td>
+                                    <td>${dev.dailyHours}h/天</td>
+                                    <td>${workload.tasks}</td>
+                                    <td><strong style="color: #667eea;">${workload.hours}h</strong></td>
+                                    <td>
+                                        <button class="btn btn-danger btn-sm" onclick="deleteDeveloper('${dev.id}')">删除</button>
+                                    </td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        // 甘特图
+        function renderGanttChart() {
+            const container = document.getElementById('ganttChart');
+            
+            if (requirements.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📅</div>
+                        <div class="empty-state-text">暂无排期数据</div>
+                        <div class="text-muted">请先添加需求和人员</div>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '<div style="background: white; border-radius: 12px; padding: 20px;">';
+            
+            requirements.forEach(req => {
+                const totalHours = req.frontendHours + req.backendHours + req.testHours;
+                
+                html += `
+                    <div class="gantt-row">
+                        <div class="gantt-label">${req.name}</div>
+                        <div style="flex: 1;">
+                            ${req.frontendHours > 0 ? `
+                                <div style="display: flex; align-items: center; margin-bottom: 5px;">
+                                    <div style="width: 80px; font-size: 12px; color: #6b7280;">前端</div>
+                                    <div style="flex: 1; background: #dbeafe; border-radius: 6px; height: 25px; display: flex; align-items: center; padding: 0 10px;">
+                                        <div style="background: #3b82f6; height: 100%; border-radius: 4px; width: ${(req.frontendHours / totalHours * 100)}%; display: flex; align-items: center; padding: 0 8px; color: white; font-size: 11px;">
+                                            ${req.frontendHours}h - ${getDeveloperName(req.frontendDev) || '未分配'}
+                                        </div>
+                                    </div>
+                                </div>
+                            ` : ''}
+                            ${req.backendHours > 0 ? `
+                                <div style="display: flex; align-items: center; margin-bottom: 5px;">
+                                    <div style="width: 80px; font-size: 12px; color: #6b7280;">后端</div>
+                                    <div style="flex: 1; background: #dcfce7; border-radius: 6px; height: 25px; display: flex; align-items: center; padding: 0 10px;">
+                                        <div style="background: #10b981; height: 100%; border-radius: 4px; width: ${(req.backendHours / totalHours * 100)}%; display: flex; align-items: center; padding: 0 8px; color: white; font-size: 11px;">
+                                            ${req.backendHours}h - ${getDeveloperName(req.backendDev) || '未分配'}
+                                        </div>
+                                    </div>
+                                </div>
+                            ` : ''}
+                            ${req.testHours > 0 ? `
+                                <div style="display: flex; align-items: center;">
+                                    <div style="width: 80px; font-size: 12px; color: #6b7280;">测试</div>
+                                    <div style="flex: 1; background: #fef3c7; border-radius: 6px; height: 25px; display: flex; align-items: center; padding: 0 10px;">
+                                        <div style="background: #f59e0b; height: 100%; border-radius: 4px; width: ${(req.testHours / totalHours * 100)}%; display: flex; align-items: center; padding: 0 8px; color: white; font-size: 11px;">
+                                            ${req.testHours}h - ${getDeveloperName(req.testDev) || '未分配'}
+                                        </div>
+                                    </div>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        // 工作量统计
+        function renderWorkloadChart() {
+            const container = document.getElementById('workloadChart');
+            
+            if (developers.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📊</div>
+                        <div class="empty-state-text">暂无人员数据</div>
+                        <div class="text-muted">请先添加人员</div>
+                    </div>
+                `;
+                return;
+            }
+
+            const workloads = developers.map(dev => {
+                const workload = calculateDeveloperWorkload(dev.id);
+                const days = (workload.hours / dev.dailyHours).toFixed(1);
+                return {
+                    name: dev.name,
+                    hours: workload.hours,
+                    days: days,
+                    tasks: workload.tasks
+                };
+            });
+
+            container.innerHTML = workloads.map(wl => `
+                <div class="workload-item">
+                    <div>
+                        <div class="workload-name">${wl.name}</div>
+                        <div class="text-muted" style="font-size: 12px; margin-top: 3px;">
+                            ${wl.tasks} 个任务 · 预计 ${wl.days} 天
+                        </div>
+                    </div>
+                    <div class="workload-hours">${wl.hours} 小时</div>
+                </div>
+            `).join('');
+        }
+
+        // 辅助函数
+        function updateDeveloperSelects() {
+            const selects = ['frontendDev', 'backendDev', 'testDev'];
+            selects.forEach(selectId => {
+                const select = document.getElementById(selectId);
+                const currentValue = select.value;
+                select.innerHTML = '<option value="">未分配</option>';
+                
+                developers.forEach(dev => {
+                    select.innerHTML += `<option value="${dev.id}">${dev.name} (${dev.role})</option>`;
+                });
+                
+                select.value = currentValue;
+            });
+        }
+
+        function getDeveloperName(id) {
+            const dev = developers.find(d => d.id === id);
+            return dev ? dev.name : '';
+        }
+
+        function calculateDeveloperWorkload(devId) {
+            let hours = 0;
+            let tasks = 0;
+            
+            requirements.forEach(req => {
+                if (req.frontendDev === devId) {
+                    hours += req.frontendHours;
+                    tasks++;
+                }
+                if (req.backendDev === devId) {
+                    hours += req.backendHours;
+                    tasks++;
+                }
+                if (req.testDev === devId) {
+                    hours += req.testHours;
+                    tasks++;
+                }
+            });
+            
+            return { hours, tasks };
+        }
+
+        function updateStats() {
+            document.getElementById('totalRequirements').textContent = requirements.length;
+            
+            const totalHours = requirements.reduce((sum, req) => 
+                sum + req.frontendHours + req.backendHours + req.testHours, 0);
+            document.getElementById('totalHours').textContent = totalHours;
+            
+            document.getElementById('totalDevelopers').textContent = developers.length;
+            
+            const avgHours = requirements.length > 0 ? (totalHours / requirements.length).toFixed(1) : 0;
+            document.getElementById('avgHours').textContent = avgHours;
+        }
+
+        // 数据持久化
+        function saveData() {
+            localStorage.setItem('projectScheduler_requirements', JSON.stringify(requirements));
+            localStorage.setItem('projectScheduler_developers', JSON.stringify(developers));
+            
+            // 显示保存成功提示
+            const btn = event?.target;
+            if (btn && btn.textContent.includes('保存')) {
+                const originalText = btn.textContent;
+                btn.textContent = '✓ 已保存';
+                btn.style.background = '#10b981';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.background = '';
+                }, 2000);
+            }
+        }
+
+        function loadData() {
+            const savedRequirements = localStorage.getItem('projectScheduler_requirements');
+            const savedDevelopers = localStorage.getItem('projectScheduler_developers');
+            
+            if (savedRequirements) {
+                requirements = JSON.parse(savedRequirements);
+            }
+            if (savedDevelopers) {
+                developers = JSON.parse(savedDevelopers);
+            }
+        }
+
+        function exportData() {
+            const data = {
+                requirements,
+                developers,
+                exportDate: new Date().toISOString()
+            };
+            
+            const dataStr = JSON.stringify(data, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `项目排期_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function importData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    try {
+                        const data = JSON.parse(event.target.result);
+                        if (data.requirements) requirements = data.requirements;
+                        if (data.developers) developers = data.developers;
+                        
+                        saveData();
+                        renderRequirements();
+                        renderDevelopers();
+                        renderGanttChart();
+                        renderWorkloadChart();
+                        updateStats();
+                        
+                        alert('数据导入成功！');
+                    } catch (error) {
+                        alert('导入失败：文件格式错误');
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+    </script>
+</body>
+</html>
